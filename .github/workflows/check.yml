@@ -6,6 +6,11 @@ on:
   schedule:
     - cron: "*/5 * * * *"
   workflow_dispatch:
+    inputs:
+      test_notify:
+        description: "Send a test Telegram message instead of a stock check"
+        type: boolean
+        default: false
 
 permissions:
   contents: write
@@ -26,12 +31,21 @@ jobs:
           python-version: "3.12"
 
       - name: Check stock and alert
+        if: ${{ inputs.test_notify != true }}
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
           SIZES: "34"
           REMIND_MINUTES: "120"
         run: python3 check.py
+
+      - name: Send test notification
+        if: ${{ inputs.test_notify == true }}
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          SIZES: "34"
+        run: python3 check.py --test-notify
 
       - name: Persist state
         if: always()
