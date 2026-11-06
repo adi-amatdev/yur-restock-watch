@@ -1,10 +1,6 @@
 name: Restock watch
 
-# GitHub's minimum schedule interval is 5 minutes, and runs can drift a few
-# minutes late under load. Good enough for a restock race.
 on:
-  schedule:
-    - cron: "*/5 * * * *"
   workflow_dispatch:
     inputs:
       test_notify:
